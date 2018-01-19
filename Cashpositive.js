@@ -84,6 +84,21 @@ app.get('/list',function(req,res){
     res.send(result)
 
   })
+  res.sendStatus(200)
+})
+
+//get sliced event list
+app.get('/listNo',function(req,res){
+  var result
+  var listNo=req.query.no
+  var eventName=req.query.eventName
+  console.log(listNo+eventName)
+/*  listNo(operation,listNo).then(fun=>{
+    result=JSON.stringify(fun)
+    res.setHeader('Content-Type', 'application/json')
+    res.send(result)
+  })*/
+  res.sendStatus(200)
 })
 
 //add userId
