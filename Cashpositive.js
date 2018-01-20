@@ -6,7 +6,7 @@ const path = require('path');
 var http = require('http');
 var Promise = require("bluebird");
 var request_1 = Promise.promisifyAll(require("request"));
-var link ='https://f8eb8da3.ngrok.io/'
+var link ='https://5df6dda6.ngrok.io/'
 var operation=''
 
 let app = express();
@@ -21,7 +21,7 @@ app.use(function(req, res, next) {
 });
 
 
-
+//addvent by organiser
 app.post('/addEvent',function(req, res){
   var request=req.query
   var organiser= request.organiser
@@ -33,21 +33,23 @@ app.post('/addEvent',function(req, res){
   operation=link+'/addEvent'
   console.log(organiser+title+details+price+location+date)
   var result
-  addEvent(operation,organiser,title,details,price,location,date).then(fun=>{
+  addEvent(organiser,title,details,price,locaiton,date).then(fun=>{
     result=fun
-    console.log(result)
+    console.log('asasas'+result)
   })
   res.sendStatus(200);
 })
 
+//delete event by organiser
 app.post('/deleteEvent',function(req,res){
   var request =req.query
   var eventName=request.eventName
-  operation=link+'/deleteEvent'+eventName
-  deleteEvent(operation)
+  deleteEvent(eventName)
   res.sendStatus(200);
 })
 
+
+//event list
 app.get('/eventName',function(req,res){
   var result;
   getEvent(operation).then(fun=>{
@@ -57,6 +59,8 @@ app.get('/eventName',function(req,res){
   })
 })
 
+
+//events discussion
 app.get('/eventDisc',function(req,res){
   var result;
   geteventDisc(operation,eventName).then(fun=>{
@@ -136,27 +140,73 @@ app.get('/', function(req, res){
 
 })
 
-function addEvent(organiser,title,details,price,location,date){
+function addEvent(organiser,title,details,price,locaiton,date){
         var dict={}
-        dict['organiser']='vaibhav'
-        dict['title']='plays'
-        dict['details']='tiugkbkb'
-        dict['price']='70'
-        dict['location']='pl'
-        dict['date']='hkhjkhkjh'
+        dict['organiser']=organisr
+        dict['title']=title
+        dict['details']=details
+        dict['price']=price
+        dict['location']=location
+        dict['date']=date
         dict=JSON.stringify(dict)
 
         var operation=link+'addevents/' + dict
-        console.log(operation)
-        return request_1.getAsync({
-                url:operation,
-                method: 'GET'
-        }).then(function(response,err){
-          return response.body
+        console.log(redisCall(operation))
+        return redisCall(operation)
 
-        });
 
    }
+
+function deleteEvent(eventName){
+  operation=link+'/deleteEvent'+eventName
+  return redisCall(operation)
+}
+
+function eventName(){
+  operation=link+'/eventName'
+  return redisCall(operaiton)
+}
+
+function geteventDisc(eventName){
+  operation=link+'/eventName'+eventName
+  return redisCall(operation)
+}
+
+function postComments(eventName,comment){
+  var dict={}
+  dict[eventName]=comment
+  dict=JSON.stringify(dict)
+  operation=link+'/postComments'+dict
+  return redisCall(operation)
+}
+
+function getList(listSpec){
+  operation=link+ '/getList'+listSpec
+  return redisCall(operation)
+}
+
+function listNo(listNo){
+  operation=link+'/listNo'+listNo
+}
+
+function login(userName){
+  operation=link+'/login'+userName
+  return redisCall(operaiton)
+}
+
+function addUser(userName,password){
+  operation=link+'/addUser'+userName
+  return redisCall(operation)
+}
+function redisCall(operation){
+  return request_1.getAsync({
+          url:operation,
+          method: 'GET'
+  }).then(function(response,err){
+    return response.body
+  });
+}
+
 
 
    var server = app.listen(process.env.PORT || 3000, function () {
