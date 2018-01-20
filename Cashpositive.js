@@ -157,21 +157,25 @@ function addEvent(organiser,title,details,price,locaiton,date){
 
    }
 
+//to delete an event
 function deleteEvent(eventName){
   operation=link+'/deleteEvent'+eventName
   return redisCall(operation)
 }
 
+//return list of all events
 function eventName(){
   operation=link+'/eventName'
   return redisCall(operaiton)
 }
 
+//get details of event with comments
 function geteventDisc(eventName){
   operation=link+'/eventName'+eventName
   return redisCall(operation)
 }
 
+//post comment on some event
 function postComments(eventName,comment){
   var dict={}
   dict[eventName]=comment
@@ -180,24 +184,30 @@ function postComments(eventName,comment){
   return redisCall(operation)
 }
 
+//filtered list of events based on title,organiser
 function getList(listSpec){
   operation=link+ '/getList'+listSpec
   return redisCall(operation)
 }
 
+//return n top events
 function listNo(listNo){
   operation=link+'/listNo'+listNo
 }
 
+//login, return passowrd from redis
 function login(userName){
   operation=link+'/login'+userName
   return redisCall(operaiton)
 }
 
+//add new user
 function addUser(userName,password){
   operation=link+'/addUser'+userName
   return redisCall(operation)
 }
+
+
 function redisCall(operation){
   return request_1.getAsync({
           url:operation,
