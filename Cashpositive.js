@@ -33,7 +33,7 @@ app.post('/addEvent',function(req, res){
   operation=link+'/addEvent'
   console.log(organiser+title+details+price+location+date)
   var result
-  addEvent(organiser,title,details,price,locaiton,date).then(fun=>{
+  addEvent(organiser,title,details,price,location,date).then(fun=>{
     result=fun
     console.log('asasas'+result)
   })
@@ -50,10 +50,10 @@ app.post('/deleteEvent',function(req,res){
 
 
 //event list
-app.get('/eventName',function(req,res){
+app.get('/getEvent',function(req,res){
   var result;
   getEvent(operation).then(fun=>{
-    result=JSON.stringify(func)
+  result=fun
     res.setHeader('Content-Type', 'application/json')
     res.send(result)
   })
@@ -63,7 +63,8 @@ app.get('/eventName',function(req,res){
 //events discussion
 app.get('/eventDisc',function(req,res){
   var result;
-  geteventDisc(operation,eventName).then(fun=>{
+  var eventName=req.query.eventName
+  geteventDisc(eventName).then(fun=>{
     result=JSON.stringify(fun)
     res.setHeader('Content-Type', 'application/json')
     res.send(result)
@@ -75,20 +76,23 @@ app.post('/postComments',function(req,res){
   var request=req.query
   var eventName=request.eventName
   var comment=request.comment
-  postComment(operation,eventName,comment)
+  var userName=request.userName
+  postComments(eventName,userName,comment)
   res.sendStatus(200);
 })
 
 //get list of events filter
-app.get('/list',function(req,res){
-  var result
-  getList(operation,listSpec).then(fun=>{
-    result=JSON.stringify(fun)
+app.get('/getList',function(req,res){
+  var result;
+  var specs=req.query.id
+  var specValue=req.query.value
+  getList(specs,specValue).then(fun=>{
+    result=fun
     res.setHeader('Content-Type', 'application/json')
     res.send(result)
 
   })
-  res.sendStatus(200)
+//  res.sendStatus(200)
 })
 
 //get sliced event list
@@ -108,49 +112,38 @@ app.get('/listNo',function(req,res){
 //add userId
 app.post('/addUser',function(req,res){
   var request=req.query
-  addUser(operation,userName,password)
+  var userName=request.userName
+  var password=request.password
+  addUser(userName,password)
+  res.sendStatus(200)
 })
 
-app.get('login',function(req,res){
+//login check
+app.get('/login',function(req,res){
+  var result
   var request=req.query
   var userName=request.userName
-  login(operation,userName).then(fun=>{
+  var password=request.password
+  login(userName,password).then(fun=>{
     result=JSON.stringify(fun)
     res.setHeader('Content-Type', 'application/json')
     res.send(result)
   })
 })
-app.get('/', function(req, res){
-  var result;
-  var resultDictionary={}
-  number_max().then(fun => {
-  result = fun
-  //result=JSON.stringify(result);
-  console.log('r'+result)
-
-  resu['body']=result;
-  console.log(resu)
-  var final=JSON.stringify(resu)
-  console.log(final)
-  res.setHeader('Content-Type', 'application/json');
-
-  res.send(final);
-})
 
 
-})
-
-function addEvent(organiser,title,details,price,locaiton,date){
+//functions to connect to db and return info to Api call
+//addevent
+function addEvent(organiser,title,details,price,location,date){
         var dict={}
-        dict['organiser']=organisr
+        dict['organiser']=organiser
         dict['title']=title
         dict['details']=details
         dict['price']=price
         dict['location']=location
         dict['date']=date
         dict=JSON.stringify(dict)
-
-        var operation=link+'addevents/' + dict
+        operation=link+'addevents/' + dict
         console.log(redisCall(operation))
         return redisCall(operation)
 
@@ -159,34 +152,39 @@ function addEvent(organiser,title,details,price,locaiton,date){
 
 //to delete an event
 function deleteEvent(eventName){
-  operation=link+'/deleteEvent'+eventName
+  operation=link+'deleteEvent/'+eventName
   return redisCall(operation)
 }
 
 //return list of all events
-function eventName(){
-  operation=link+'/eventName'
-  return redisCall(operaiton)
+function getEvent(){
+  operation=link+'getEvent'
+  return redisCall(operation)
 }
 
 //get details of event with comments
 function geteventDisc(eventName){
-  operation=link+'/eventName'+eventName
+  operation=link+'geteventDisc'+'/'+eventName
+  console.log(operation)
   return redisCall(operation)
 }
 
 //post comment on some event
-function postComments(eventName,comment){
+function postComments(eventName,userName,comment){
   var dict={}
-  dict[eventName]=comment
+  dict['user']=userName
+  dict['comment']=comment
   dict=JSON.stringify(dict)
-  operation=link+'/postComments'+dict
+  console.log(dict)
+  operation=link+'postcomments/'+eventName+'/'+dict
   return redisCall(operation)
 }
 
 //filtered list of events based on title,organiser
-function getList(listSpec){
-  operation=link+ '/getList'+listSpec
+function getList(specs,specValue){
+  console.log(specs)
+  operation=link+ 'getList/'+specs+'/'+specValue
+  console.log(operation)
   return redisCall(operation)
 }
 
@@ -196,14 +194,14 @@ function listNo(listNo){
 }
 
 //login, return passowrd from redis
-function login(userName){
-  operation=link+'/login'+userName
-  return redisCall(operaiton)
+function login(userName,password){
+  operation=link+'login/'+userName+'/'+password
+  return redisCall(operation)
 }
 
 //add new user
 function addUser(userName,password){
-  operation=link+'/addUser'+userName
+  operation=link+'addUser/'+userName+'/'+password
   return redisCall(operation)
 }
 
@@ -218,7 +216,7 @@ function redisCall(operation){
 }
 
 
-
-   var server = app.listen(process.env.PORT || 3000, function () {
+//listening to port 3000
+var server = app.listen(process.env.PORT || 3000, function () {
            console.log("Listening on port %s", server.address().port);
    });
